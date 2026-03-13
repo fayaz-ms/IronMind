@@ -1,0 +1,467 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Auth & Users ─────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Profile
+  profile UserProfile?
+
+  // Subscription
+  subscription Subscription?
+
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  workouts      Workout[]
+  nutritionLogs NutritionLog[]
+  sleepLogs     SleepLog[]
+  bodyProgress  BodyProgress[]
+  waterLogs     WaterLog[]
+  habits        Habit[]
+  achievements  UserAchievement[]
+  aiInsights    AiInsight[]
+  socialPosts   SocialPost[]
+  likes         Like[]
+  comments      Comment[]
+  followers     Follow[]       @relation("followers")
+  following     Follow[]       @relation("following")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model UserProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  age           Int?
+  height        Float? // cm
+  weight        Float? // kg
+  gender        Gender?
+  fitnessGoal   FitnessGoal @default(MAINTAIN)
+  activityLevel ActivityLevel @default(MODERATE)
+  calorieGoal   Int      @default(2000)
+  proteinGoal   Int      @default(150)
+  carbGoal      Int      @default(250)
+  fatGoal       Int      @default(65)
+  waterGoal     Float    @default(2.5) // liters
+  sleepGoal     Float    @default(8.0) // hours
+  stepsGoal     Int      @default(10000)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum FitnessGoal {
+  LOSE
+  MAINTAIN
+  GAIN
+  RECOMP
+}
+
+enum ActivityLevel {
+  SEDENTARY
+  LIGHT
+  MODERATE
+  ACTIVE
+  VERY_ACTIVE
+}
+
+// ─── Subscription / Billing ───────────────────────────────────────
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  plan                 SubscriptionPlan   @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum SubscriptionPlan {
+  FREE
+  PRO
+  ELITE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  TRIALING
+}
+
+// ─── Workouts ─────────────────────────────────────────────────────
+
+model Exercise {
+  id           String         @id @default(cuid())
+  name         String
+  muscleGroup  MuscleGroup
+  equipment    String?
+  description  String?        @db.Text
+  difficulty   Difficulty     @default(BEGINNER)
+  isCustom     Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  sets         WorkoutSet[]
+  programItems ProgramExercise[]
+
+  @@index([muscleGroup])
+}
+
+enum MuscleGroup {
+  CHEST
+  BACK
+  SHOULDERS
+  BICEPS
+  TRICEPS
+  LEGS
+  GLUTES
+  ABS
+  CARDIO
+  FULL_BODY
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+model Workout {
+  id           String       @id @default(cuid())
+  userId       String
+  name         String
+  duration     Int? // minutes
+  caloriesBurned Int?
+  notes        String?      @db.Text
+  completedAt  DateTime     @default(now())
+  createdAt    DateTime     @default(now())
+
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sets WorkoutSet[]
+
+  @@index([userId, completedAt])
+}
+
+model WorkoutSet {
+  id         String  @id @default(cuid())
+  workoutId  String
+  exerciseId String
+  setNumber  Int
+  reps       Int?
+  weight     Float? // kg
+  duration   Int?   // seconds (for cardio)
+  distance   Float? // km
+
+  workout  Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id])
+
+  @@index([workoutId])
+}
+
+model WorkoutProgram {
+  id          String            @id @default(cuid())
+  name        String
+  description String?           @db.Text
+  difficulty  Difficulty        @default(BEGINNER)
+  durationWeeks Int             @default(4)
+  isPremium   Boolean           @default(false)
+  createdAt   DateTime          @default(now())
+  exercises   ProgramExercise[]
+}
+
+model ProgramExercise {
+  id        String @id @default(cuid())
+  programId String
+  exerciseId String
+  day       Int
+  sets      Int
+  reps      String // e.g. "8-12"
+  restSeconds Int  @default(60)
+  order     Int
+
+  program  WorkoutProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  exercise Exercise       @relation(fields: [exerciseId], references: [id])
+
+  @@index([programId])
+}
+
+// ─── Nutrition ────────────────────────────────────────────────────
+
+model NutritionLog {
+  id        String   @id @default(cuid())
+  userId    String
+  mealType  MealType
+  name      String
+  calories  Int
+  protein   Float    @default(0)
+  carbs     Float    @default(0)
+  fat       Float    @default(0)
+  fiber     Float    @default(0)
+  loggedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, loggedAt])
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
+model WaterLog {
+  id       String   @id @default(cuid())
+  userId   String
+  amount   Float // liters
+  loggedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, loggedAt])
+}
+
+// ─── Sleep ────────────────────────────────────────────────────────
+
+model SleepLog {
+  id         String   @id @default(cuid())
+  userId     String
+  sleepStart DateTime
+  sleepEnd   DateTime
+  duration   Float // hours
+  quality    Int?  // 1-10
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, sleepStart])
+}
+
+// ─── Body Progress ────────────────────────────────────────────────
+
+model BodyProgress {
+  id            String   @id @default(cuid())
+  userId        String
+  weight        Float? // kg
+  bodyFat       Float? // %
+  muscleMass    Float? // kg
+  waist         Float? // cm
+  chest         Float? // cm
+  arms          Float? // cm
+  notes         String?
+  measuredAt    DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, measuredAt])
+}
+
+// ─── Habits & Gamification ────────────────────────────────────────
+
+model Habit {
+  id             String        @id @default(cuid())
+  userId         String
+  name           String
+  icon           String        @default("check")
+  currentStreak  Int           @default(0)
+  longestStreak  Int           @default(0)
+  completions    HabitCompletion[]
+  createdAt      DateTime      @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model HabitCompletion {
+  id          String   @id @default(cuid())
+  habitId     String
+  completedAt DateTime @default(now())
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@index([habitId, completedAt])
+}
+
+model Achievement {
+  id          String @id @default(cuid())
+  name        String
+  description String
+  icon        String
+  category    String
+  threshold   Int // e.g. 7 for "7-day streak"
+
+  users UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  earnedAt      DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+}
+
+// ─── AI Insights ──────────────────────────────────────────────────
+
+model AiInsight {
+  id        String      @id @default(cuid())
+  userId    String
+  type      InsightType
+  title     String
+  content   String      @db.Text
+  priority  Int         @default(0)
+  read      Boolean     @default(false)
+  createdAt DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+enum InsightType {
+  WORKOUT
+  NUTRITION
+  SLEEP
+  HYDRATION
+  GENERAL
+}
+
+// ─── Social ───────────────────────────────────────────────────────
+
+model SocialPost {
+  id        String    @id @default(cuid())
+  userId    String
+  content   String    @db.Text
+  type      PostType  @default(WORKOUT)
+  metadata  Json?
+  createdAt DateTime  @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes    Like[]
+  comments Comment[]
+
+  @@index([userId, createdAt])
+}
+
+enum PostType {
+  WORKOUT
+  ACHIEVEMENT
+  PROGRESS
+  GENERAL
+}
+
+model Like {
+  id     String @id @default(cuid())
+  userId String
+  postId String
+
+  user User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post SocialPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  user User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post SocialPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+}
