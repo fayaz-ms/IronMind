@@ -1,158 +1,193 @@
-# FitTrack AI
+# 🧠 IronMind — AI-Powered Fitness Platform
 
-A modern, full-stack fitness & wellness SaaS platform built with **Next.js 14**, **TypeScript**, **TailwindCSS**, **Prisma**, and **OpenAI**.
+[![Author](https://img.shields.io/badge/Author-Fayazahmad__Siddik-violet?style=for-the-badge)](https://github.com/fayaz-ms)
+[![Live](https://img.shields.io/badge/Live-ironmind--ten.vercel.app-brightgreen?style=for-the-badge)](https://ironmind-ten.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue?style=for-the-badge&logo=typescript)](https://typescriptlang.org)
+[![Prisma](https://img.shields.io/badge/Prisma-5.22-2D3748?style=for-the-badge&logo=prisma)](https://prisma.io)
+[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-412991?style=for-the-badge&logo=openai)](https://openai.com)
+[![Stripe](https://img.shields.io/badge/Stripe-Payments-635bff?style=for-the-badge&logo=stripe)](https://stripe.com)
 
-## Features
+> **Built with ❤️ | Author - Fayazahmad_Siddik**
 
-- **Dashboard** — Stats overview, weekly charts, AI insight cards
-- **Workout Tracker** — Exercise library, set logging, programs
-- **Nutrition Tracker** — Macro tracking, meal logging, pie/bar charts
-- **Sleep Tracker** — Sleep logging, quality analysis, trends
-- **Body Progress** — Weight, body fat, muscle mass with line charts
-- **AI Coach** — GPT-powered fitness coaching chat
-- **Social Feed** — Posts, likes, comments, leaderboard
-- **Achievements** — Badges, weekly challenges, gamification
-- **Analytics** — Deep-dive charts (workouts, nutrition, sleep)
-- **Admin Panel** — User management, exercise CRUD, platform settings
-- **Stripe Billing** — Free / Pro ($9/mo) / Elite ($19/mo) tiers
+IronMind is a **startup-grade AI fitness SaaS platform** that combines intelligent workout tracking, nutrition management, sleep optimization, and AI-powered coaching into a single, beautifully designed application.
 
-## Tech Stack
+## 🌐 Live Demo
+
+**[https://ironmind-ten.vercel.app](https://ironmind-ten.vercel.app)**
+
+## ✨ Features
+
+### Core Platform
+- **AI Personal Trainer** — GPT-4 powered coaching with personalized workout plans, nutrition advice, and daily insights
+- **Smart Workout Tracking** — Exercise library, set/rep logging, progressive overload suggestions
+- **Nutrition Intelligence** — Macro tracking, meal logging, AI-generated meal plans
+- **Sleep Optimization** — Sleep quality analysis, duration tracking, recovery insights
+- **Body Analytics** — Weight, body fat, muscle mass tracking with trend charts
+- **Hydration Tracking** — Daily water intake goals and logging
+
+### Growth & Engagement
+- **Gamification System** — Achievements, badges, streaks, levels, weekly challenges
+- **Social Feed** — Posts, likes, comments, follow system, public profiles
+- **Leaderboards** — Streak-based competitive rankings
+- **Referral System** — Invite friends and earn rewards
+
+### Monetization
+- **Stripe SaaS Billing** — Free / Pro ($9/mo) / Elite ($19/mo) tiers
+- **Feature Gating** — Plan-based access controls
+- **Checkout & Billing Portal** — Stripe-powered subscription management
+
+### AI Endpoints
+- `/api/ai-coach` — Conversational AI fitness coaching
+- `/api/workout-generator` — AI-generated workout plans
+- `/api/nutrition-advice` — Personalized nutrition recommendations
+
+### Enterprise Features
+- **Role-Based Access** — User and Admin roles with protected routes
+- **Analytics Dashboard** — Workout completion, retention metrics, progress tracking
+- **SEO Optimized** — Dynamic metadata, OpenGraph, sitemap, robots.txt
+- **Performance** — Server components, lazy loading, optimized images
+
+## 🛠 Tech Stack
 
 | Layer | Technology |
 |---|---|
 | Framework | Next.js 14 (App Router) |
-| Language | TypeScript |
-| Styling | TailwindCSS + ShadCN UI |
+| Language | TypeScript (strict mode) |
+| Styling | TailwindCSS + Radix UI primitives |
 | Animation | Framer Motion |
 | Database | PostgreSQL + Prisma ORM |
-| Auth | NextAuth.js (Google + Credentials) |
+| Auth | NextAuth.js (Google + Email/Password) |
 | AI | OpenAI GPT-4o-mini |
 | Payments | Stripe (Checkout + Webhooks) |
 | Charts | Recharts |
 | Validation | Zod + React Hook Form |
+| Deployment | Vercel (Edge Network) |
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js 18+
 - PostgreSQL database
 - OpenAI API key
-- Stripe account (for billing)
+- Stripe account
 - Google OAuth credentials (optional)
 
 ### Installation
 
 ```bash
-# Clone and install
-cd frontend/fittrack-ai
+git clone https://github.com/fayaz-ms/IronMind.git
+cd IronMind
 npm install
 
 # Set up environment variables
 cp .env.example .env.local
-# Edit .env.local with your actual values
 
 # Set up database
 npx prisma generate
 npx prisma db push
 
-# (Optional) Seed the database
-npx prisma db seed
-
 # Start development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+### Environment Variables
 
-### Stripe Setup
-
-1. Create products & prices in Stripe Dashboard for Pro and Elite plans
-2. Copy the price IDs into `.env.local`
-3. Set up a webhook endpoint pointing to `/api/stripe/webhook`
-4. Add the webhook signing secret to `.env.local`
-
-For local development, use the Stripe CLI:
-
-```bash
-stripe listen --forward-to localhost:3000/api/stripe/webhook
+```env
+DATABASE_URL=postgresql://...
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-secret
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+OPENAI_API_KEY=sk-...
+STRIPE_SECRET_KEY=sk_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRO_PRICE_ID=price_...
+STRIPE_ELITE_PRICE_ID=price_...
 ```
 
-### Google OAuth Setup
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create OAuth 2.0 credentials
-3. Set authorized redirect URI to `http://localhost:3000/api/auth/callback/google`
-4. Copy Client ID and Secret to `.env.local`
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 src/
 ├── app/
-│   ├── (auth)/           # Auth pages (login, signup, onboarding)
-│   ├── (dashboard)/      # Dashboard layout + all feature pages
+│   ├── (auth)/           # Login, Signup, Onboarding
+│   ├── (dashboard)/      # Protected dashboard pages
 │   │   └── dashboard/
-│   │       ├── workouts/
-│   │       ├── nutrition/
-│   │       ├── sleep/
-│   │       ├── progress/
-│   │       ├── ai-coach/
-│   │       ├── social/
-│   │       ├── achievements/
-│   │       ├── analytics/
-│   │       ├── profile/
-│   │       └── admin/
+│   │       ├── workouts/     # Workout tracking
+│   │       ├── nutrition/    # Nutrition logging
+│   │       ├── sleep/        # Sleep tracking
+│   │       ├── progress/     # Body progress
+│   │       ├── ai-coach/     # AI coaching chat
+│   │       ├── social/       # Social feed
+│   │       ├── achievements/ # Gamification
+│   │       ├── analytics/    # Advanced analytics
+│   │       ├── profile/      # User profile
+│   │       └── admin/        # Admin panel
 │   ├── api/              # API routes
-│   │   ├── auth/
-│   │   ├── workouts/
-│   │   ├── nutrition/
-│   │   ├── sleep/
-│   │   ├── progress/
-│   │   ├── ai-coach/
-│   │   ├── social/
-│   │   ├── stripe/
-│   │   ├── admin/
-│   │   ├── dashboard/
-│   │   ├── exercises/
-│   │   └── profile/
-│   ├── pricing/
-│   └── globals.css
-├── components/
-│   ├── ui/               # ShadCN components
-│   ├── dashboard/        # Dashboard-specific components
-│   ├── layout/           # Layout components
-│   └── providers/        # Context providers
-├── lib/                  # Utilities, configs, API clients
-├── types/                # TypeScript interfaces
+│   │   ├── ai-coach/         # AI coaching
+│   │   ├── workout-generator/# AI workout generation
+│   │   ├── nutrition-advice/ # AI nutrition advice  
+│   │   ├── analytics/        # User analytics
+│   │   ├── stripe/           # Payments
+│   │   └── ...
+│   ├── pricing/          # Pricing page
+│   ├── sitemap.ts        # Dynamic sitemap
+│   └── robots.ts         # Robots.txt
+├── components/           # React components
+├── lib/                  # Utilities & configs
+├── types/                # TypeScript types
 └── prisma/
     └── schema.prisma     # Database schema
 ```
 
-## Scripts
+## 📊 Database Schema
+
+- Users & Profiles
+- Workouts & WorkoutSets
+- Exercises & Programs
+- NutritionLogs
+- SleepLogs
+- BodyProgress
+- WaterLogs
+- Habits & HabitCompletions
+- Achievements & UserAchievements
+- AiInsights
+- SocialPosts, Likes, Comments, Follows
+- Subscriptions
+
+## 🧪 Scripts
 
 ```bash
-npm run dev       # Start dev server
+npm run dev       # Development server
 npm run build     # Production build
-npm run start     # Start production server
-npm run lint      # Run ESLint
-npx prisma studio # Open Prisma Studio (DB GUI)
+npm run start     # Start production
+npm run lint      # ESLint
+npx prisma studio # Database GUI
 ```
 
-## Deployment
+## 🌍 Deployment
 
-The app is configured for deployment on **Vercel**:
+Deployed on **Vercel** with automatic CI/CD from GitHub.
 
-1. Push to GitHub
-2. Import project in Vercel
-3. Set environment variables in Vercel dashboard
-4. Vercel auto-detects Next.js and deploys
+1. Push to `main` branch
+2. Vercel auto-deploys
+3. Environment variables configured in Vercel dashboard
 
-For the database, use a managed PostgreSQL provider:
-- [Neon](https://neon.tech) (recommended, free tier)
+### Recommended Database Providers
+- [Neon](https://neon.tech) (recommended)
 - [Supabase](https://supabase.com)
 - [Railway](https://railway.app)
 
-## License
+## 👤 Author
+
+**Fayazahmad_Siddik**
+
+- GitHub: [@fayaz-ms](https://github.com/fayaz-ms)
+
+Built with ❤️ | Author - Fayazahmad_Siddik
+
+## 📄 License
 
 MIT

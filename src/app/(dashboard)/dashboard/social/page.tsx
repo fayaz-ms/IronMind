@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Heart, MessageCircle, Share2, Trophy, Dumbbell, TrendingUp, Medal } from "lucide-react";
+import { Heart, MessageCircle, Share2, Trophy, Dumbbell, TrendingUp, Medal, Gift, Copy, Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -23,7 +23,7 @@ const posts = [
   },
   {
     id: "3", userName: "Alex R.", userImage: null, initials: "AR",
-    content: "Down 5 kg in 2 months. Clean eating + PPL program = results. Thanks FitTrack AI for keeping me accountable!",
+    content: "Down 5 kg in 2 months. Clean eating + PPL program = results. Thanks IronMind for keeping me accountable!",
     type: "PROGRESS", likes: 56, comments: 15, isLiked: false, createdAt: "1 day ago",
   },
   {
@@ -52,9 +52,17 @@ export default function SocialPage() {
   const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>(
     Object.fromEntries(posts.map((p) => [p.id, p.isLiked]))
   );
+  const [copied, setCopied] = useState(false);
+  const referralLink = "https://ironmind-ten.vercel.app/signup?ref=invite";
 
   function toggleLike(postId: string) {
     setLikedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }));
+  }
+
+  function copyReferral() {
+    navigator.clipboard.writeText(referralLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   return (
@@ -68,6 +76,7 @@ export default function SocialPage() {
         <TabsList>
           <TabsTrigger value="feed">Feed</TabsTrigger>
           <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
+          <TabsTrigger value="invite">Invite Friends</TabsTrigger>
         </TabsList>
 
         <TabsContent value="feed" className="space-y-4 mt-4">
@@ -158,6 +167,42 @@ export default function SocialPage() {
                   </div>
                 </div>
               ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="invite" className="mt-4">
+          <Card className="border-violet-500/30 bg-gradient-to-r from-violet-500/5 to-indigo-500/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Gift className="h-5 w-5 text-violet-500" /> Invite Friends & Earn Rewards
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Share IronMind with friends and earn <span className="font-semibold text-foreground">1 month of Pro free</span> for each friend who signs up and completes their first workout.
+              </p>
+              <div className="flex items-center gap-2">
+                <Input value={referralLink} readOnly className="flex-1 font-mono text-xs" />
+                <Button variant="gradient" size="sm" className="gap-1.5" onClick={copyReferral}>
+                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copied ? "Copied!" : "Copy"}
+                </Button>
+              </div>
+              <div className="grid grid-cols-3 gap-3 pt-2">
+                <div className="rounded-xl border bg-card/50 p-3 text-center">
+                  <p className="text-2xl font-bold">0</p>
+                  <p className="text-xs text-muted-foreground">Friends Invited</p>
+                </div>
+                <div className="rounded-xl border bg-card/50 p-3 text-center">
+                  <p className="text-2xl font-bold">0</p>
+                  <p className="text-xs text-muted-foreground">Signed Up</p>
+                </div>
+                <div className="rounded-xl border bg-card/50 p-3 text-center">
+                  <p className="text-2xl font-bold">0</p>
+                  <p className="text-xs text-muted-foreground">Months Earned</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

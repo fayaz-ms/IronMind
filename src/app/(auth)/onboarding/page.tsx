@@ -54,7 +54,7 @@ export default function OnboardingPage() {
             <Activity className="h-5 w-5 text-white" />
           </div>
           <span className="text-xl font-bold">
-            FitTrack <span className="gradient-text">AI</span>
+            Iron<span className="gradient-text">Mind</span>
           </span>
         </div>
 

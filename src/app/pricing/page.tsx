@@ -93,7 +93,7 @@ export default function PricingPage() {
             <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center">
               <Zap className="h-4 w-4 text-white" />
             </div>
-            FitTrack AI
+            Iron<span className="gradient-text">Mind</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/login">
@@ -212,6 +212,13 @@ export default function PricingPage() {
               </Card>
             ))}
           </div>
+        </div>
+
+        {/* Author credit */}
+        <div className="text-center mt-16">
+          <p className="text-sm text-muted-foreground">
+            Built with ❤️ | Author - <span className="font-semibold">Fayazahmad_Siddik</span>
+          </p>
         </div>
       </main>
     </div>

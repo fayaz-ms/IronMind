@@ -60,7 +60,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Activity className="h-4 w-4 text-white" />
             </div>
             <span className="text-lg font-bold">
-              FitTrack <span className="gradient-text">AI</span>
+              Iron<span className="gradient-text">Mind</span>
             </span>
           </div>
 
@@ -104,6 +104,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <p className="text-xs text-muted-foreground truncate">{session?.user?.email}</p>
               </div>
             </div>
+            <p className="mt-3 text-[10px] text-muted-foreground text-center">
+              Built with ❤️ | Author - Fayazahmad_Siddik
+            </p>
           </div>
         </div>
       </aside>
@@ -132,7 +135,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-primary">
                       <Activity className="h-4 w-4 text-white" />
                     </div>
-                    <span className="text-lg font-bold">FitTrack AI</span>
+                    <span className="text-lg font-bold">Iron<span className="gradient-text">Mind</span></span>
                   </div>
                   <button onClick={() => setSidebarOpen(false)}>
                     <X className="h-5 w-5" />

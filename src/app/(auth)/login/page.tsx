@@ -47,7 +47,7 @@ export default function LoginPage() {
           <Activity className="mx-auto h-16 w-16 mb-6" />
           <h1 className="text-4xl font-bold">Welcome Back</h1>
           <p className="mt-4 text-lg text-white/80">
-            Continue your fitness journey with AI-powered insights and tracking.
+            Continue your fitness journey with IronMind's AI-powered coaching.
           </p>
         </div>
       </div>
@@ -66,7 +66,7 @@ export default function LoginPage() {
                 <Activity className="h-5 w-5 text-white" />
               </div>
               <span className="text-xl font-bold">
-                FitTrack <span className="gradient-text">AI</span>
+                Iron<span className="gradient-text">Mind</span>
               </span>
             </Link>
             <h2 className="text-2xl font-bold">Sign in to your account</h2>

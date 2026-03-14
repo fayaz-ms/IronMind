@@ -1,6 +1,12 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let _openai: OpenAI | null = null;
+function getOpenAI(): OpenAI {
+  if (!_openai) {
+    _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return _openai;
+}
 
 interface UserContext {
   name: string;
@@ -15,7 +21,7 @@ interface UserContext {
   bodyProgress?: string;
 }
 
-const SYSTEM_PROMPT = `You are FitTrack AI Coach, an expert fitness and wellness advisor. 
+const SYSTEM_PROMPT = `You are IronMind AI Coach, an expert fitness and wellness advisor. 
 You provide evidence-based, personalized guidance on workouts, nutrition, sleep, and overall health.
 Be encouraging but honest. Give specific, actionable advice.
 Format responses with clear sections using markdown.
@@ -30,7 +36,7 @@ export async function generateFitnessInsight(
     .map(([k, v]) => `${k}: ${v}`)
     .join("\n");
 
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
       { role: "system", content: SYSTEM_PROMPT },

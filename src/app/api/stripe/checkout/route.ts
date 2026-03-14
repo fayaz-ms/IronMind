@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { stripe } from "@/lib/stripe";
+import { getStripeClient } from "@/lib/stripe";
 
 export async function POST(req: Request) {
   try {
@@ -35,6 +35,7 @@ export async function POST(req: Request) {
     if (existingSub?.stripeCustomerId) {
       customerId = existingSub.stripeCustomerId;
     } else {
+      const stripe = getStripeClient();
       const customer = await stripe.customers.create({
         email: user.email!,
         name: user.name || undefined,
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
       customerId = customer.id;
     }
 
-    const checkoutSession = await stripe.checkout.sessions.create({
+    const checkoutSession = await getStripeClient().checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
       payment_method_types: ["card"],

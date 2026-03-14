@@ -60,7 +60,7 @@ export default function SignUpPage() {
           <Activity className="mx-auto h-16 w-16 mb-6" />
           <h1 className="text-4xl font-bold">Start Your Journey</h1>
           <p className="mt-4 text-lg text-white/80">
-            Join thousands of users transforming their fitness with AI-powered guidance.
+            Join thousands of users transforming their fitness with IronMind's AI coaching.
           </p>
         </div>
       </div>
@@ -79,7 +79,7 @@ export default function SignUpPage() {
                 <Activity className="h-5 w-5 text-white" />
               </div>
               <span className="text-xl font-bold">
-                FitTrack <span className="gradient-text">AI</span>
+                Iron<span className="gradient-text">Mind</span>
               </span>
             </Link>
             <h2 className="text-2xl font-bold">Create your account</h2>

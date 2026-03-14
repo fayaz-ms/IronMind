@@ -1,10 +1,11 @@
 "use client";
 
+import { useEffect, useState, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import {
   Flame,
   Droplets,
-  Footprints,
   Moon,
   Dumbbell,
   TrendingUp,
@@ -27,87 +28,120 @@ const fadeUp = {
   }),
 };
 
-// Mock data — replace with real API calls
-const stats = {
-  calories: { consumed: 1847, goal: 2200, burned: 420 },
-  water: { consumed: 1.8, goal: 2.5 },
-  steps: { count: 7832, goal: 10000 },
-  sleep: { hours: 7.2, goal: 8, score: 82 },
-  workout: { minutes: 45, goal: 60 },
-  streak: { workout: 12, hydration: 5 },
-};
-
-const cards = [
-  {
-    label: "Calories",
-    value: `${stats.calories.consumed}`,
-    unit: "kcal",
-    goal: stats.calories.goal,
-    progress: (stats.calories.consumed / stats.calories.goal) * 100,
-    icon: Flame,
-    color: "text-orange-500",
-    bgColor: "bg-orange-500/10",
-    progressColor: "bg-orange-500",
-  },
-  {
-    label: "Water",
-    value: `${stats.water.consumed}`,
-    unit: "L",
-    goal: stats.water.goal,
-    progress: (stats.water.consumed / stats.water.goal) * 100,
-    icon: Droplets,
-    color: "text-blue-500",
-    bgColor: "bg-blue-500/10",
-    progressColor: "bg-blue-500",
-  },
-  {
-    label: "Steps",
-    value: stats.steps.count.toLocaleString(),
-    unit: "",
-    goal: stats.steps.goal,
-    progress: (stats.steps.count / stats.steps.goal) * 100,
-    icon: Footprints,
-    color: "text-emerald-500",
-    bgColor: "bg-emerald-500/10",
-    progressColor: "bg-emerald-500",
-  },
-  {
-    label: "Sleep",
-    value: `${stats.sleep.hours}`,
-    unit: "hrs",
-    goal: stats.sleep.goal,
-    progress: (stats.sleep.hours / stats.sleep.goal) * 100,
-    icon: Moon,
-    color: "text-indigo-500",
-    bgColor: "bg-indigo-500/10",
-    progressColor: "bg-indigo-500",
-  },
-  {
-    label: "Workout",
-    value: `${stats.workout.minutes}`,
-    unit: "min",
-    goal: stats.workout.goal,
-    progress: (stats.workout.minutes / stats.workout.goal) * 100,
-    icon: Dumbbell,
-    color: "text-violet-500",
-    bgColor: "bg-violet-500/10",
-    progressColor: "bg-violet-500",
-  },
-  {
-    label: "Streak",
-    value: `${stats.streak.workout}`,
-    unit: "days",
-    goal: 30,
-    progress: (stats.streak.workout / 30) * 100,
-    icon: Zap,
-    color: "text-amber-500",
-    bgColor: "bg-amber-500/10",
-    progressColor: "bg-amber-500",
-  },
-];
+interface DashboardData {
+  calories: { current: number; goal: number };
+  protein: { current: number; goal: number };
+  carbs: { current: number; goal: number };
+  fat: { current: number; goal: number };
+  sleep: { duration: number; quality: number } | null;
+  workoutsThisWeek: number;
+  totalWorkoutMinutes: number;
+  latestWeight: number | null;
+}
 
 export default function DashboardPage() {
+  const { data: session } = useSession();
   const greeting = getGreeting();
+  const [dashData, setDashData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchDashboard = useCallback(async () => {
+    try {
+      const res = await fetch("/api/dashboard");
+      if (res.ok) {
+        const data = await res.json();
+        setDashData(data);
+      }
+    } catch {
+      // silently fail, show defaults
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
+
+  const stats = {
+    calories: { consumed: dashData?.calories.current ?? 0, goal: dashData?.calories.goal ?? 2200 },
+    protein: { consumed: dashData?.protein.current ?? 0, goal: dashData?.protein.goal ?? 150 },
+    water: { consumed: 0, goal: 2.5 },
+    sleep: { hours: dashData?.sleep?.duration ?? 0, goal: 8, score: dashData?.sleep?.quality ?? 0 },
+    workout: { minutes: dashData?.totalWorkoutMinutes ?? 0, goal: 300 },
+    streak: { workout: dashData?.workoutsThisWeek ?? 0, goal: 7 },
+  };
+
+  const cards = [
+    {
+      label: "Calories",
+      value: `${stats.calories.consumed}`,
+      unit: "kcal",
+      goal: stats.calories.goal,
+      progress: stats.calories.goal > 0 ? (stats.calories.consumed / stats.calories.goal) * 100 : 0,
+      icon: Flame,
+      color: "text-orange-500",
+      bgColor: "bg-orange-500/10",
+      progressColor: "bg-orange-500",
+    },
+    {
+      label: "Protein",
+      value: `${stats.protein.consumed}`,
+      unit: "g",
+      goal: stats.protein.goal,
+      progress: stats.protein.goal > 0 ? (stats.protein.consumed / stats.protein.goal) * 100 : 0,
+      icon: TrendingUp,
+      color: "text-violet-500",
+      bgColor: "bg-violet-500/10",
+      progressColor: "bg-violet-500",
+    },
+    {
+      label: "Water",
+      value: `${stats.water.consumed}`,
+      unit: "L",
+      goal: stats.water.goal,
+      progress: stats.water.goal > 0 ? (stats.water.consumed / stats.water.goal) * 100 : 0,
+      icon: Droplets,
+      color: "text-blue-500",
+      bgColor: "bg-blue-500/10",
+      progressColor: "bg-blue-500",
+    },
+    {
+      label: "Sleep",
+      value: `${stats.sleep.hours}`,
+      unit: "hrs",
+      goal: stats.sleep.goal,
+      progress: stats.sleep.goal > 0 ? (stats.sleep.hours / stats.sleep.goal) * 100 : 0,
+      icon: Moon,
+      color: "text-indigo-500",
+      bgColor: "bg-indigo-500/10",
+      progressColor: "bg-indigo-500",
+    },
+    {
+      label: "Workout",
+      value: `${stats.workout.minutes}`,
+      unit: "min",
+      goal: stats.workout.goal,
+      progress: stats.workout.goal > 0 ? (stats.workout.minutes / stats.workout.goal) * 100 : 0,
+      icon: Dumbbell,
+      color: "text-violet-500",
+      bgColor: "bg-violet-500/10",
+      progressColor: "bg-violet-500",
+    },
+    {
+      label: "Workouts",
+      value: `${stats.streak.workout}`,
+      unit: "this week",
+      goal: stats.streak.goal,
+      progress: stats.streak.goal > 0 ? (stats.streak.workout / stats.streak.goal) * 100 : 0,
+      icon: Zap,
+      color: "text-amber-500",
+      bgColor: "bg-amber-500/10",
+      progressColor: "bg-amber-500",
+    },
+  ];
+
+  const userName = session?.user?.name?.split(" ")[0] || "Athlete";
 
   return (
     <div className="space-y-6">
@@ -115,14 +149,14 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            {greeting} <span className="gradient-text">Alex</span> 👋
+            {greeting}, <span className="gradient-text">{userName}</span> 👋
           </h1>
           <p className="text-sm text-muted-foreground">
             Here&apos;s your fitness summary for today
           </p>
         </div>
         <Badge variant="success" className="w-fit gap-1">
-          <TrendingUp className="h-3 w-3" /> On Track
+          <TrendingUp className="h-3 w-3" /> {loading ? "Loading..." : "Live Data"}
         </Badge>
       </div>
 
@@ -154,8 +188,7 @@ export default function DashboardPage() {
                     </span>
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {card.label} • Goal: {card.goal}
-                    {card.unit}
+                    {card.label} • Goal: {card.goal}{card.unit === "this week" ? "" : card.unit}
                   </p>
                 </div>
                 <Progress
@@ -171,18 +204,9 @@ export default function DashboardPage() {
 
       {/* Main grid */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Weekly chart */}
-        <motion.div
-          className="lg:col-span-2"
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          custom={6}
-        >
+        <motion.div className="lg:col-span-2" initial="hidden" animate="visible" variants={fadeUp} custom={6}>
           <WeeklyChart />
         </motion.div>
-
-        {/* Quick actions */}
         <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={7}>
           <QuickActions />
         </motion.div>
@@ -192,6 +216,13 @@ export default function DashboardPage() {
       <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={8}>
         <AiInsightCards />
       </motion.div>
+
+      {/* Dashboard footer */}
+      <div className="text-center pt-4 border-t">
+        <p className="text-xs text-muted-foreground">
+          Built with ❤️ | Author - <span className="font-medium">Fayazahmad_Siddik</span>
+        </p>
+      </div>
     </div>
   );
 }
