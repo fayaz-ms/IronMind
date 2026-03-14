@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { Footer } from "@/components/Footer";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
@@ -191,7 +192,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* Page content */}
-        <div className="flex-1 overflow-y-auto p-4 lg:p-6">{children}</div>
+        <div className="flex-1 overflow-y-auto p-4 lg:p-6">
+          <div className="flex min-h-full flex-col">
+            <div className="flex-1">{children}</div>
+            <Footer />
+          </div>
+        </div>
       </main>
     </div>
   );
